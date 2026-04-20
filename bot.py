@@ -25,7 +25,7 @@ from aiogram.types import (
 from cryptography.fernet import Fernet
 
 
-TOKEN = "8562451249:AAGoRws4uP865VZiLGAohrvFGrKNodq0jxg"
+TOKEN = "8651047664:AAEuXn6Plh-tqlX_-6JC5iMebydKL1HYo_s"
 
 DB_NAME = "password_manager.db"
 SESSION_TIMEOUT = 300
