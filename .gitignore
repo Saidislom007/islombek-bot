@@ -1,0 +1,27 @@
+# Python kesh fayllari
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Muhit (Environment) fayllari - MAXFIY KALITLAR SHU YERDA BO'LADI
+.env
+.venv
+env/
+venv/
+ENV/
+
+# Ma'lumotlar bazasi (SQLite)
+*.sqlite3
+*.db
+data/
+
+# Docker kesh va loglar
+.dockerignore
+*.log
+
+# Shifrlash kalitlari (agar faylda saqlasangiz)
+*.key
+
+# IDE sozlamalari
+.vscode/
+.idea/
