@@ -6,6 +6,7 @@ import random
 import sqlite3
 import string
 import time
+from aiohttp import web
 from contextlib import closing
 from typing import Optional
 
@@ -21,13 +22,19 @@ from aiogram.types import (
     InlineKeyboardMarkup,
     Message,
 )
+from aiogram.webhook.aiohttp_server import SimpleRequestHandler, setup_application
 
 from cryptography.fernet import Fernet
 
+WEBHOOK_PATH = "/webhook"
+WEBHOOK_HOST = os.environ.get('WEBHOOK_HOST')
+WEBHOOK_SECRET = os.environ.get('WEBHOOK_SECRET')
 
-TOKEN = "8651047664:AAEuXn6Plh-tqlX_-6JC5iMebydKL1HYo_s"
+TOKEN = os.environ.get('BOT_TOKEN')
 
-DB_NAME = "password_manager.db"
+os.makedirs(os.path.join(os.getcwd(), 'contents'), exist_ok=True)
+DB_NAME = os.path.join("contents", "password_manager.db")
+
 SESSION_TIMEOUT = 300
 MAX_PIN_ATTEMPTS = 3
 PIN_BLOCK_SECONDS = 120
@@ -1503,12 +1510,33 @@ async def fallback(message: Message):
     await message.answer(text, reply_markup=home_kb(user_id))
 
 
-async def main():
+async def on_startup(bot: Bot) -> None:
     global FERNET
+    
     init_db()
+    
     FERNET = Fernet(get_secret_key())
-    await dp.start_polling(bot)
+    
+    await bot.set_webhook(f"{WEBHOOK_HOST}{WEBHOOK_PATH}", secret_token=WEBHOOK_SECRET)
 
 
-if __name__ == "__main__":
-    asyncio.run(main())
+def main():
+    dp.startup.register(on_startup)
+
+    app = web.Application()
+
+    webhook_requests_handler = SimpleRequestHandler(
+        dispatcher=dp,
+        bot=bot,
+        secret_token=WEBHOOK_SECRET,
+    )
+    webhook_requests_handler.register(app, path=WEBHOOK_PATH)
+
+    setup_application(app, dp, bot=bot)
+
+    web.run_app(app, host='0.0.0.0', port=8080)
+
+
+if __name__ == '__main__':
+    main()
+
